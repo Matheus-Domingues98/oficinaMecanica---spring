@@ -1,5 +1,6 @@
 package com.projetoweb.oficinamecanica.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -20,6 +21,7 @@ public class Servico implements Serializable {
     private String nome;
     private Double preco;
     private String descricao;
+    @JsonFormat(pattern = "HH:mm")
     private Duration duracao;
 
     @OneToMany(mappedBy = "servico")
