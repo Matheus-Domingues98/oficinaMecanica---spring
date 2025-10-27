@@ -1,0 +1,91 @@
+package com.projetoweb.oficinamecanica.entities;
+
+import jakarta.persistence.*;
+
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@Entity
+@Table(name = "tb_servico")
+public class Servico implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nome;
+    private Double preco;
+    private String descricao;
+    private Duration duracao;
+
+    @OneToMany(mappedBy = "servico")
+    private List<OrderServico> orderServicos = new ArrayList<>();
+
+
+    public Servico() {
+    }
+
+    public Servico(Long id, String nome, Double preco, String descricao, Duration duracao) {
+        this.id = id;
+        this.nome = nome;
+        this.preco = preco;
+        this.descricao = descricao;
+        this.duracao = duracao;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public Double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(Double preco) {
+        this.preco = preco;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public Duration getDuracao() {
+        return duracao;
+    }
+
+    public void setDuracao(Duration duracao) {
+        this.duracao = duracao;
+    }
+
+    public List<OrderServico> getOrderServicos() {
+        return orderServicos;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Servico servico = (Servico) o;
+        return Objects.equals(id, servico.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+}
