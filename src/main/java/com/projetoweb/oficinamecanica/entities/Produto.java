@@ -1,6 +1,9 @@
 package com.projetoweb.oficinamecanica.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,8 +19,14 @@ public class Produto implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
+    
+    @Positive(message = "Preço deve ser positivo")
     private Double preco;
+    
+    @PositiveOrZero(message = "Quantidade não pode ser negativa")
     private Integer quantidade;
 
     @OneToMany(mappedBy = "produto")

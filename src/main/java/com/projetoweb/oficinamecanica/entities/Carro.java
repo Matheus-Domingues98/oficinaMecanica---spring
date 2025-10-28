@@ -1,6 +1,9 @@
 package com.projetoweb.oficinamecanica.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -14,10 +17,19 @@ public class Carro implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Modelo é obrigatório")
     private String modelo;
+    
+    @NotBlank(message = "Placa é obrigatória")
+    @Pattern(regexp = "[A-Z]{3}-\\d{4}", message = "Placa deve estar no formato ABC-1234")
     private String placa;
+    
     private String cor;
+    
+    @NotNull(message = "Ano de fabricação é obrigatório")
     private Integer anoFabricacao;
+    
+    @NotBlank(message = "Marca é obrigatória")
     private String marca;
 
     @ManyToOne

@@ -2,8 +2,8 @@ package com.projetoweb.oficinamecanica.controller;
 
 import com.projetoweb.oficinamecanica.entities.Cliente;
 import com.projetoweb.oficinamecanica.services.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,14 +30,14 @@ public class ClienteController {
         return ResponseEntity.ok().body(obj);
     }
 
-    @Query("SELECT c from Cliente c where c.doc = :doc")
+    @GetMapping("/doc/{doc}")
     public ResponseEntity<Cliente> findByDoc(@PathVariable String doc) {
         Cliente obj = clienteService.findByDoc(doc);
         return ResponseEntity.ok().body(obj);
     }
 
     @PostMapping
-    public ResponseEntity<Cliente> insert(@RequestBody Cliente obj) {
+    public ResponseEntity<Cliente> insert(@Valid @RequestBody Cliente obj) {
         obj = clienteService.insert(obj);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(obj.getId()).toUri();
@@ -51,7 +51,7 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> update(@PathVariable Long id, @RequestBody Cliente obj) {
+    public ResponseEntity<Cliente> update(@PathVariable Long id, @Valid @RequestBody Cliente obj) {
         obj = clienteService.update(id, obj);
         return ResponseEntity.ok().body(obj);
     }

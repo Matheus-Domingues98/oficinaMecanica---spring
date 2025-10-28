@@ -1,14 +1,16 @@
 package com.projetoweb.oficinamecanica.services;
 
 import com.projetoweb.oficinamecanica.entities.Cliente;
+import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
 import com.projetoweb.oficinamecanica.repositories.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ClienteService {
 
     @Autowired
@@ -19,25 +21,32 @@ public class ClienteService {
     }
 
     public Cliente findById(Long id) {
-        Optional<Cliente> obj = clienteRepository.findById(id);
-        return obj.get();
+        return clienteRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
     }
 
+    @Transactional
     public Cliente insert(Cliente obj) {
         return clienteRepository.save(obj);
     }
 
+    @Transactional
     public void delete(Long id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Cliente não encontrado com id: " + id);
+        }
         clienteRepository.deleteById(id);
     }
 
     public Cliente findByDoc(String doc) {
-        Optional<Cliente> obj = clienteRepository.findByDoc(doc);
-        return obj.get();
+        return clienteRepository.findByDoc(doc)
+            .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com documento: " + doc));
     }
 
+    @Transactional
     public Cliente update(Long id, Cliente obj) {
-        Cliente entity = clienteRepository.findById(id).get();
+        Cliente entity = clienteRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
         updateData(entity, obj);
         return clienteRepository.save(entity);
     }

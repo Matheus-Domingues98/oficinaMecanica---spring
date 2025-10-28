@@ -1,14 +1,16 @@
 package com.projetoweb.oficinamecanica.services;
 
 import com.projetoweb.oficinamecanica.entities.Produto;
+import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
 import com.projetoweb.oficinamecanica.repositories.ProdutoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ProdutoService {
 
     @Autowired
@@ -19,20 +21,27 @@ public class ProdutoService {
     }
 
     public Produto findById(Long id) {
-        Optional<Produto> obj = produtoRepository.findById(id);
-        return obj.get();
+        return produtoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
     }
 
+    @Transactional
     public Produto insert(Produto obj) {
         return produtoRepository.save(obj);
     }
 
+    @Transactional
     public void delete(Long id) {
+        if (!produtoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Produto não encontrado com id: " + id);
+        }
         produtoRepository.deleteById(id);
     }
 
+    @Transactional
     public Produto update(Long id, Produto obj) {
-        Produto entity = produtoRepository.findById(id).get();
+        Produto entity = produtoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
         updateData(entity, obj);
         return produtoRepository.save(entity);
     }

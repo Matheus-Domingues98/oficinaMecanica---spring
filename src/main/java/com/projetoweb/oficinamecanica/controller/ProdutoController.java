@@ -2,6 +2,7 @@ package com.projetoweb.oficinamecanica.controller;
 
 import com.projetoweb.oficinamecanica.entities.Produto;
 import com.projetoweb.oficinamecanica.services.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,21 +31,21 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<Produto> insert(@RequestBody Produto obj) {
+    public ResponseEntity<Produto> insert(@Valid @RequestBody Produto obj) {
         obj = produtoService.insert(obj);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(obj.getId()).toUri();
         return ResponseEntity.created(uri).body(obj);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         produtoService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> update(@PathVariable Long id, @RequestBody Produto obj) {
+    public ResponseEntity<Produto> update(@PathVariable Long id, @Valid @RequestBody Produto obj) {
         obj = produtoService.update(id, obj);
         return ResponseEntity.ok().body(obj);
     }

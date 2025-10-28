@@ -2,6 +2,8 @@ package com.projetoweb.oficinamecanica.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -18,9 +20,15 @@ public class Servico implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @NotBlank(message = "Nome é obrigatório")
     private String nome;
+    
+    @Positive(message = "Preço deve ser positivo")
     private Double preco;
+    
     private String descricao;
+    
     @JsonFormat(pattern = "HH:mm")
     private Duration duracao;
 

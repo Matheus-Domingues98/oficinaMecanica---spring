@@ -2,6 +2,7 @@ package com.projetoweb.oficinamecanica.controller;
 
 import com.projetoweb.oficinamecanica.entities.Carro;
 import com.projetoweb.oficinamecanica.services.CarroService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class CarroController {
     }
 
     @PostMapping
-    public ResponseEntity<Carro> insert(@RequestBody Carro obj) {
+    public ResponseEntity<Carro> insert(@Valid @RequestBody Carro obj) {
         obj = carroService.insert(obj);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(obj.getId()).toUri();
@@ -44,7 +45,7 @@ public class CarroController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Carro> update(@PathVariable Long id, @RequestBody Carro obj) {
+    public ResponseEntity<Carro> update(@PathVariable Long id, @Valid @RequestBody Carro obj) {
         obj = carroService.update(id, obj);
         return ResponseEntity.ok().body(obj);
     }

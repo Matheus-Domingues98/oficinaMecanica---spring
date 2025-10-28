@@ -1,14 +1,16 @@
 package com.projetoweb.oficinamecanica.services;
 
 import com.projetoweb.oficinamecanica.entities.Carro;
+import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
 import com.projetoweb.oficinamecanica.repositories.CarroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class CarroService {
 
     @Autowired
@@ -19,26 +21,30 @@ public class CarroService {
     }
 
     public Carro findById(Long id) {
-        Optional <Carro> obj = carroRepository.findById(id);
-        return obj.get();
+        return carroRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Carro não encontrado com id: " + id));
     }
 
+    @Transactional
     public Carro insert(Carro obj) {
         return carroRepository.save(obj);
     }
 
+    @Transactional
     public void delete(Long id) {
+        if (!carroRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Carro não encontrado com id: " + id);
+        }
         carroRepository.deleteById(id);
     }
 
+    @Transactional
     public Carro update(Long id, Carro obj) {
-        Carro entity = carroRepository.findById(id).get();
+        Carro entity = carroRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Carro não encontrado com id: " + id));
         updateData(entity, obj);
         return carroRepository.save(entity);
     }
-
-
-
 
     private void updateData(Carro entity, Carro obj) {
         entity.setMarca(obj.getMarca());

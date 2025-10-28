@@ -2,6 +2,7 @@ package com.projetoweb.oficinamecanica.controller;
 
 import com.projetoweb.oficinamecanica.dto.OrderResponseDto;
 import com.projetoweb.oficinamecanica.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponseDto> insert(@RequestBody OrderResponseDto orderResponseDto) {
+    public ResponseEntity<OrderResponseDto> insert(@Valid @RequestBody OrderResponseDto orderResponseDto) {
         orderResponseDto = orderService.insert(orderResponseDto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(orderResponseDto.getId()).toUri();
@@ -39,7 +40,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderResponseDto> update(@PathVariable Long id, @RequestBody OrderResponseDto orderResponseDto) {
+    public ResponseEntity<OrderResponseDto> update(@PathVariable Long id, @Valid @RequestBody OrderResponseDto orderResponseDto) {
         orderResponseDto = orderService.update(id, orderResponseDto);
         return ResponseEntity.ok().body(orderResponseDto);
     }
