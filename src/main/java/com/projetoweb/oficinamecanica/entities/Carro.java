@@ -22,6 +22,7 @@ public class Carro implements Serializable {
     
     @NotBlank(message = "Placa é obrigatória")
     @Pattern(regexp = "[A-Z]{3}-\\d{4}", message = "Placa deve estar no formato ABC-1234")
+    @Column(unique = true)
     private String placa;
     
     private String cor;
@@ -109,11 +110,11 @@ public class Carro implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Carro carro = (Carro) o;
-        return Objects.equals(id, carro.id) && Objects.equals(placa, carro.placa);
+        return Objects.equals(id, carro.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, placa);
+        return Objects.hashCode(id);
     }
 }

@@ -3,7 +3,6 @@ package com.projetoweb.oficinamecanica.controller;
 import com.projetoweb.oficinamecanica.entities.Servico;
 import com.projetoweb.oficinamecanica.services.ServicoService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -15,8 +14,11 @@ import java.util.List;
 @RequestMapping("/servicos")
 public class ServicoController {
 
-    @Autowired
-    private ServicoService servicoService;
+    private final ServicoService servicoService;
+
+    public ServicoController(ServicoService servicoService) {
+        this.servicoService = servicoService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Servico>> findAll() {
@@ -45,8 +47,8 @@ public class ServicoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Servico> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         servicoService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

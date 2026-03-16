@@ -19,12 +19,13 @@ public enum OrderStatus {
         return code;
     }
 
-    public static OrderStatus valueOf(int code) {
+    // Usa fromCode() para não colidir com Enum.valueOf(String name)
+    public static OrderStatus fromCode(int code) {
         for (OrderStatus value : OrderStatus.values()) {
             if (value.getCode() == code) {
                 return value;
             }
         }
-        throw new IllegalArgumentException("Invalid OrderStatus code!");
+        throw new IllegalArgumentException("Código de status inválido: " + code);
     }
 }

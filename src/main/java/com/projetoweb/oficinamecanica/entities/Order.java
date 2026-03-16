@@ -1,15 +1,22 @@
 package com.projetoweb.oficinamecanica.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projetoweb.oficinamecanica.entities.enums.OrderStatus;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Entity
 @Table(name = "tb_order")
+@EntityListeners(AuditingEntityListener.class)
 public class Order implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -20,6 +27,14 @@ public class Order implements Serializable {
 
     private Integer orderStatus;
 
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
@@ -29,9 +44,11 @@ public class Order implements Serializable {
     private Carro carro;
 
     @OneToMany(mappedBy = "order")
+    @JsonIgnore
     private Set<OrderServico> orderServicos = new HashSet<>();
 
     @OneToMany(mappedBy = "order")
+    @JsonIgnore
     private Set<OrderProduto> orderProdutos = new HashSet<>();
 
     public Order() {
@@ -59,8 +76,7 @@ public class Order implements Serializable {
     }
 
     public OrderStatus getOrderStatus() {
-        // Converte o código Integer armazenado de volta para o enum
-        return OrderStatus.valueOf(orderStatus);
+        return OrderStatus.fromCode(orderStatus);
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
@@ -86,6 +102,14 @@ public class Order implements Serializable {
         this.carro = carro;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
     public Set<OrderServico> getOrderServicos() {
         return orderServicos;
     }
@@ -94,7 +118,7 @@ public class Order implements Serializable {
         return orderProdutos;
     }
 
-    public List<Object> getItens() {
+    public List<OrderItem> getItens() {
         return Stream.concat(
                 orderProdutos.stream(),
                 orderServicos.stream()
@@ -104,13 +128,19 @@ public class Order implements Serializable {
     // --- MÉTODOS DE NEGÓCIO ---
 
     /**
-     * Calcula o valor total do pedido.
-     * @return Valor total do pedido.
+     * Calcula o valor total do pedido usando BigDecimal para evitar
+     * erros de ponto flutuante em valores monetários.
      */
-    public Double getTotal() {
-         double totalServico = orderServicos.stream().mapToDouble(OrderServico::getPreco).sum();
-         double totalProduto = orderProdutos.stream().mapToDouble(OrderProduto::getSubTotal).sum();
-         return totalServico + totalProduto;
+    public BigDecimal getTotal() {
+        BigDecimal totalServico = orderServicos.stream()
+                .map(OrderServico::getPreco)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalProduto = orderProdutos.stream()
+                .map(OrderProduto::getSubTotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return totalServico.add(totalProduto);
     }
 
 

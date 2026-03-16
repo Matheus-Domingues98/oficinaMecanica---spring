@@ -1,5 +1,6 @@
 package com.projetoweb.oficinamecanica.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -33,9 +34,13 @@ public class Cliente implements Serializable {
     private String email;
     
     @NotBlank(message = "Documento é obrigatório")
+    @Pattern(regexp = "\\d{11}|\\d{14}",
+             message = "Documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ), apenas números")
+    @Column(unique = true)
     private String doc;
 
     @OneToMany(mappedBy = "cliente")
+    @JsonIgnore
     private Set<Carro> carros = new HashSet<>();
 
     public Cliente() {

@@ -1,10 +1,6 @@
 package com.projetoweb.oficinamecanica.entities.pk;
 
-import com.projetoweb.oficinamecanica.entities.Order;
-import com.projetoweb.oficinamecanica.entities.Servico;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 
 import java.io.Serializable;
 import java.util.Objects;

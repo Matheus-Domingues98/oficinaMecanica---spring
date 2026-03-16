@@ -3,7 +3,6 @@ package com.projetoweb.oficinamecanica.services;
 import com.projetoweb.oficinamecanica.entities.Servico;
 import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
 import com.projetoweb.oficinamecanica.repositories.ServicoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +12,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ServicoService {
 
-    @Autowired
-    private ServicoRepository repository;
+    private final ServicoRepository repository;
+
+    public ServicoService(ServicoRepository repository) {
+        this.repository = repository;
+    }
 
     public List<Servico> findAll() {
         return repository.findAll();

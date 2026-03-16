@@ -1,25 +1,31 @@
 package com.projetoweb.oficinamecanica.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projetoweb.oficinamecanica.entities.pk.OrderProdutoPK;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "tb_order_produto")
-public class OrderProduto implements Serializable {
+public class OrderProduto implements Serializable, OrderItem {
 
     @EmbeddedId
     private OrderProdutoPK id = new OrderProdutoPK();
 
     private String nome;
-    private Double preco;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal preco;
+
     private Integer quantidade;
 
     @ManyToOne
     @MapsId("orderId")
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     @ManyToOne
@@ -30,7 +36,7 @@ public class OrderProduto implements Serializable {
     public  OrderProduto() {
     }
 
-    public OrderProduto(Order order, Produto produto, String nome, Double preco, Integer quantidade) {
+    public OrderProduto(Order order, Produto produto, String nome, BigDecimal preco, Integer quantidade) {
        this.order = order;
        this.produto = produto;
 
@@ -72,11 +78,11 @@ public class OrderProduto implements Serializable {
         this.nome = nome;
     }
 
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 
@@ -88,8 +94,9 @@ public class OrderProduto implements Serializable {
         this.quantidade = quantidade;
     }
 
-    public Double getSubTotal() {
-        return preco * quantidade;
+    public BigDecimal getSubTotal() {
+        if (preco == null || quantidade == null) return BigDecimal.ZERO;
+        return preco.multiply(BigDecimal.valueOf(quantidade));
     }
 
     @Override

@@ -1,25 +1,35 @@
 package com.projetoweb.oficinamecanica.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projetoweb.oficinamecanica.entities.pk.OrderServicoPK;
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tb_order_servico")
-public class OrderServico {
+public class OrderServico implements Serializable, OrderItem {
+
+    private static final long serialVersionUID = 1L;
 
     @EmbeddedId
     private OrderServicoPK id = new OrderServicoPK();
 
     private String nome;
-    private Double preco;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal preco;
+
     private String descricao;
     private Duration duracao;
 
     @ManyToOne
     @MapsId("orderId")
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     @ManyToOne
@@ -30,7 +40,7 @@ public class OrderServico {
     public OrderServico() {
     }
 
-    public OrderServico(Order order, Servico servico, String nome, Double preco, String descricao, Duration duracao) {
+    public OrderServico(Order order, Servico servico, String nome, BigDecimal preco, String descricao, Duration duracao) {
         this.order = order;
         this.servico = servico;
 
@@ -73,11 +83,11 @@ public class OrderServico {
         this.nome = nome;
     }
 
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 
@@ -95,5 +105,17 @@ public class OrderServico {
 
     public void setDuracao(Duration duracao) {
         this.duracao = duracao;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderServico that = (OrderServico) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

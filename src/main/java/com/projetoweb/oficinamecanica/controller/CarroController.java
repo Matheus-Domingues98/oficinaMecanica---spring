@@ -3,7 +3,6 @@ package com.projetoweb.oficinamecanica.controller;
 import com.projetoweb.oficinamecanica.entities.Carro;
 import com.projetoweb.oficinamecanica.services.CarroService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -15,8 +14,11 @@ import java.util.List;
 @RequestMapping("/carros")
 public class CarroController {
 
-    @Autowired
-    private CarroService carroService;
+    private final CarroService carroService;
+
+    public CarroController(CarroService carroService) {
+        this.carroService = carroService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Carro>> findAll() {

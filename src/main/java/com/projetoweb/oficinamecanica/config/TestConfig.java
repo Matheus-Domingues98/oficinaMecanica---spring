@@ -8,10 +8,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.HashSet;
 
 import static com.projetoweb.oficinamecanica.entities.enums.OrderStatus.AGUARDANDO_APROVACAO;
 import static com.projetoweb.oficinamecanica.entities.enums.OrderStatus.FINALIZADO;
@@ -44,8 +43,9 @@ public class TestConfig implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        Cliente c1 = new Cliente(null, "Matheus", "11922233378", "matheus@gmail.com", "45459090");
-        Cliente c2 = new Cliente(null, "Maria", "11933344487", "maria@gmail.com", "45459090");
+        // Documentos únicos e válidos: 11 dígitos (CPF)
+        Cliente c1 = new Cliente(null, "Matheus", "11922233378", "matheus@gmail.com", "12345678901");
+        Cliente c2 = new Cliente(null, "Maria", "11933344487", "maria@gmail.com", "98765432100");
 
         clienteRepository.saveAll(Arrays.asList(c1, c2));
 
@@ -59,8 +59,8 @@ public class TestConfig implements CommandLineRunner {
 
         orderRepository.saveAll(Arrays.asList(o1, o2));
 
-        Servico s1 = new Servico(null, "Trocar Pneu", 100.0, "Realizar a troca do pneu", Duration.ofHours(2));
-        Servico s2 = new Servico(null, "Trocar de Oleo", 100.0, "Realizar a troca do oleo", Duration.ofHours(1));
+        Servico s1 = new Servico(null, "Trocar Pneu", new BigDecimal("100.00"), "Realizar a troca do pneu", Duration.ofHours(2));
+        Servico s2 = new Servico(null, "Trocar de Oleo", new BigDecimal("100.00"), "Realizar a troca do oleo", Duration.ofHours(1));
 
         servicoRepository.saveAll(Arrays.asList(s1, s2));
 
@@ -69,8 +69,8 @@ public class TestConfig implements CommandLineRunner {
 
         orderServicoRepository.saveAll(Arrays.asList(os1, os2));
 
-        Produto p1 = new Produto(null, "Pneu", 50.0, 4);
-        Produto p2 = new Produto(null, "Oleo", 100.0, 1);
+        Produto p1 = new Produto(null, "Pneu", new BigDecimal("50.00"), 4);
+        Produto p2 = new Produto(null, "Oleo", new BigDecimal("100.00"), 1);
 
         produtoRepository.saveAll(Arrays.asList(p1, p2));
 

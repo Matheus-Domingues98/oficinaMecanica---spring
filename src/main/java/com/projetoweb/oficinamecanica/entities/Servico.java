@@ -1,11 +1,13 @@
 package com.projetoweb.oficinamecanica.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,8 @@ public class Servico implements Serializable {
     private String nome;
     
     @Positive(message = "Preço deve ser positivo")
-    private Double preco;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal preco;
     
     private String descricao;
     
@@ -33,13 +36,14 @@ public class Servico implements Serializable {
     private Duration duracao;
 
     @OneToMany(mappedBy = "servico")
+    @JsonIgnore
     private List<OrderServico> orderServicos = new ArrayList<>();
 
 
     public Servico() {
     }
 
-    public Servico(Long id, String nome, Double preco, String descricao, Duration duracao) {
+    public Servico(Long id, String nome, BigDecimal preco, String descricao, Duration duracao) {
         this.id = id;
         this.nome = nome;
         this.preco = preco;
@@ -59,11 +63,11 @@ public class Servico implements Serializable {
         this.nome = nome;
     }
 
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 
