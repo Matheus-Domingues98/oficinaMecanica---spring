@@ -1,5 +1,7 @@
 package com.projetoweb.oficinamecanica.services;
 
+import com.projetoweb.oficinamecanica.dto.ServicoRequestDto;
+import com.projetoweb.oficinamecanica.dto.ServicoResponseDto;
 import com.projetoweb.oficinamecanica.entities.Servico;
 import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
 import com.projetoweb.oficinamecanica.repositories.ServicoRepository;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -18,18 +21,38 @@ public class ServicoService {
         this.repository = repository;
     }
 
-    public List<Servico> findAll() {
-        return repository.findAll();
+    public List<ServicoResponseDto> findAll() {
+        return repository.findAll()
+                .stream()
+                .map(ServicoResponseDto::from)
+                .collect(Collectors.toList());
     }
 
-    public Servico findById(Long id) {
-        return repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com id: " + id));
+    public ServicoResponseDto findById(Long id) {
+        Servico entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com id: " + id));
+        return ServicoResponseDto.from(entity);
     }
 
     @Transactional
-    public Servico insert(Servico obj) {
-        return repository.save(obj);
+    public ServicoResponseDto insert(ServicoRequestDto dto) {
+        Servico entity = new Servico();
+        entity.setNome(dto.nome());
+        entity.setPreco(dto.preco());
+        entity.setDescricao(dto.descricao());
+        entity.setDuracao(dto.duracao());
+        return ServicoResponseDto.from(repository.save(entity));
+    }
+
+    @Transactional
+    public ServicoResponseDto update(Long id, ServicoRequestDto dto) {
+        Servico entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com id: " + id));
+        entity.setNome(dto.nome());
+        entity.setPreco(dto.preco());
+        entity.setDescricao(dto.descricao());
+        entity.setDuracao(dto.duracao());
+        return ServicoResponseDto.from(repository.save(entity));
     }
 
     @Transactional
@@ -38,20 +61,5 @@ public class ServicoService {
             throw new ResourceNotFoundException("Serviço não encontrado com id: " + id);
         }
         repository.deleteById(id);
-    }
-
-    @Transactional
-    public Servico update(Long id, Servico obj) {
-        Servico entity = repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado com id: " + id));
-        updateData(entity, obj);
-        return repository.save(entity);
-    }
-
-    private void updateData(Servico entity, Servico obj) {
-        entity.setNome(obj.getNome());
-        entity.setPreco(obj.getPreco());
-        entity.setDescricao(obj.getDescricao());
-        entity.setDuracao(obj.getDuracao());
     }
 }

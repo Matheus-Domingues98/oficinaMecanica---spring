@@ -1,2 +1,10 @@
 com/projetoweb/oficinamecanica/dto/OrderRequestDto.class
+com/projetoweb/oficinamecanica/dto/OrderServicoRequestDto.class
+com/projetoweb/oficinamecanica/dto/ProdutoRequestDto.class
+com/projetoweb/oficinamecanica/dto/ServicoResponseDto.class
+com/projetoweb/oficinamecanica/dto/ProdutoResponseDto.class
+com/projetoweb/oficinamecanica/dto/CarroRequestDto.class
+com/projetoweb/oficinamecanica/dto/ClienteRequestDto.class
 com/projetoweb/oficinamecanica/entities/OrderItem.class
+com/projetoweb/oficinamecanica/dto/OrderProdutoRequestDto.class
+com/projetoweb/oficinamecanica/dto/ServicoRequestDto.class

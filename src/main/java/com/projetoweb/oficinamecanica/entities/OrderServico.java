@@ -35,6 +35,7 @@ public class OrderServico implements Serializable, OrderItem {
     @ManyToOne
     @MapsId("servicoId")
     @JoinColumn(name = "servico_id")
+    @JsonIgnore
     private Servico servico;
 
     public OrderServico() {

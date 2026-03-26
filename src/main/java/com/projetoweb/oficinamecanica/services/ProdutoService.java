@@ -1,5 +1,7 @@
 package com.projetoweb.oficinamecanica.services;
 
+import com.projetoweb.oficinamecanica.dto.ProdutoRequestDto;
+import com.projetoweb.oficinamecanica.dto.ProdutoResponseDto;
 import com.projetoweb.oficinamecanica.entities.Produto;
 import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
 import com.projetoweb.oficinamecanica.repositories.ProdutoRepository;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -18,18 +21,36 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
     }
 
-    public List<Produto> findAll() {
-        return produtoRepository.findAll();
+    public List<ProdutoResponseDto> findAll() {
+        return produtoRepository.findAll()
+                .stream()
+                .map(ProdutoResponseDto::from)
+                .collect(Collectors.toList());
     }
 
-    public Produto findById(Long id) {
-        return produtoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
+    public ProdutoResponseDto findById(Long id) {
+        Produto entity = produtoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
+        return ProdutoResponseDto.from(entity);
     }
 
     @Transactional
-    public Produto insert(Produto obj) {
-        return produtoRepository.save(obj);
+    public ProdutoResponseDto insert(ProdutoRequestDto dto) {
+        Produto entity = new Produto();
+        entity.setNome(dto.nome());
+        entity.setPreco(dto.preco());
+        entity.setQuantidade(dto.quantidade());
+        return ProdutoResponseDto.from(produtoRepository.save(entity));
+    }
+
+    @Transactional
+    public ProdutoResponseDto update(Long id, ProdutoRequestDto dto) {
+        Produto entity = produtoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
+        entity.setNome(dto.nome());
+        entity.setPreco(dto.preco());
+        entity.setQuantidade(dto.quantidade());
+        return ProdutoResponseDto.from(produtoRepository.save(entity));
     }
 
     @Transactional
@@ -38,19 +59,5 @@ public class ProdutoService {
             throw new ResourceNotFoundException("Produto não encontrado com id: " + id);
         }
         produtoRepository.deleteById(id);
-    }
-
-    @Transactional
-    public Produto update(Long id, Produto obj) {
-        Produto entity = produtoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
-        updateData(entity, obj);
-        return produtoRepository.save(entity);
-    }
-
-    private void updateData(Produto entity, Produto obj) {
-        entity.setNome(obj.getNome());
-        entity.setPreco(obj.getPreco());
-        entity.setQuantidade(obj.getQuantidade());
     }
 }

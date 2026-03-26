@@ -31,6 +31,7 @@ public class OrderProduto implements Serializable, OrderItem {
     @ManyToOne
     @MapsId("produtoId")
     @JoinColumn(name = "produto_id")
+    @JsonIgnore
     private Produto produto;
 
     public  OrderProduto() {

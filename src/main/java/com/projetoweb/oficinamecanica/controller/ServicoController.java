@@ -1,6 +1,7 @@
 package com.projetoweb.oficinamecanica.controller;
 
-import com.projetoweb.oficinamecanica.entities.Servico;
+import com.projetoweb.oficinamecanica.dto.ServicoRequestDto;
+import com.projetoweb.oficinamecanica.dto.ServicoResponseDto;
 import com.projetoweb.oficinamecanica.services.ServicoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -21,29 +22,27 @@ public class ServicoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Servico>> findAll() {
-        List<Servico> obj = servicoService.findAll();
-        return ResponseEntity.ok().body(obj);
+    public ResponseEntity<List<ServicoResponseDto>> findAll() {
+        return ResponseEntity.ok(servicoService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Servico> findById(@PathVariable Long id) {
-        Servico obj = servicoService.findById(id);
-        return ResponseEntity.ok().body(obj);
+    public ResponseEntity<ServicoResponseDto> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(servicoService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Servico> create(@Valid @RequestBody Servico obj) {
-        obj = servicoService.insert(obj);
+    public ResponseEntity<ServicoResponseDto> insert(@Valid @RequestBody ServicoRequestDto dto) {
+        ServicoResponseDto response = servicoService.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(obj);
+                .buildAndExpand(response.id()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Servico> update(@PathVariable Long id, @Valid @RequestBody Servico obj) {
-        obj = servicoService.update(id, obj);
-        return ResponseEntity.ok().body(obj);
+    public ResponseEntity<ServicoResponseDto> update(@PathVariable Long id,
+                                                     @Valid @RequestBody ServicoRequestDto dto) {
+        return ResponseEntity.ok(servicoService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")

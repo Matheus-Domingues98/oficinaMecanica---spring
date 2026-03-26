@@ -8,15 +8,17 @@ public class ClienteResponseDto {
     private String nome;
     private String telefone;
     private String email;
+    private String doc;
 
     public ClienteResponseDto() {
     }
 
-    public ClienteResponseDto(Long id, String nome, String telefone, String email) {
-        this.id = id;
-        this.nome = nome;
-        this.telefone = telefone;
-        this.email = email;
+    public ClienteResponseDto(Cliente cliente) {
+        this.id = cliente.getId();
+        this.nome = cliente.getNome();
+        this.telefone = cliente.getTelefone();
+        this.email = cliente.getEmail();
+        this.doc = cliente.getDoc();
     }
 
     public Long getId() {
@@ -27,30 +29,15 @@ public class ClienteResponseDto {
         return nome;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public String getTelefone() {
         return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public ClienteResponseDto(Cliente cliente) {
-        this.id = cliente.getId();
-        this.nome = cliente.getNome();
-        this.telefone = cliente.getTelefone();
-        this.email = cliente.getEmail();
+    public String getDoc() {
+        return doc;
     }
 }

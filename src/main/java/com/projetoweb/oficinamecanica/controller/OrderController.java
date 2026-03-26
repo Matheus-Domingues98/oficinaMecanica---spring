@@ -1,7 +1,9 @@
 package com.projetoweb.oficinamecanica.controller;
 
+import com.projetoweb.oficinamecanica.dto.OrderProdutoRequestDto;
 import com.projetoweb.oficinamecanica.dto.OrderRequestDto;
 import com.projetoweb.oficinamecanica.dto.OrderResponseDto;
+import com.projetoweb.oficinamecanica.dto.OrderServicoRequestDto;
 import com.projetoweb.oficinamecanica.services.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +54,31 @@ public class OrderController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         orderService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // --- ITENS DA ORDER ---
+
+    @PostMapping("/{id}/produtos")
+    public ResponseEntity<OrderResponseDto> adicionarProduto(@PathVariable Long id,
+                                                             @Valid @RequestBody OrderProdutoRequestDto dto) {
+        return ResponseEntity.ok(orderService.adicionarProduto(id, dto));
+    }
+
+    @DeleteMapping("/{id}/produtos/{produtoId}")
+    public ResponseEntity<OrderResponseDto> removerProduto(@PathVariable Long id,
+                                                           @PathVariable Long produtoId) {
+        return ResponseEntity.ok(orderService.removerProduto(id, produtoId));
+    }
+
+    @PostMapping("/{id}/servicos")
+    public ResponseEntity<OrderResponseDto> adicionarServico(@PathVariable Long id,
+                                                             @Valid @RequestBody OrderServicoRequestDto dto) {
+        return ResponseEntity.ok(orderService.adicionarServico(id, dto));
+    }
+
+    @DeleteMapping("/{id}/servicos/{servicoId}")
+    public ResponseEntity<OrderResponseDto> removerServico(@PathVariable Long id,
+                                                           @PathVariable Long servicoId) {
+        return ResponseEntity.ok(orderService.removerServico(id, servicoId));
     }
 }
