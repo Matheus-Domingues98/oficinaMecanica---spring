@@ -27,6 +27,9 @@ public class Order implements Serializable {
 
     private Integer orderStatus;
 
+    @Column(name = "data_validade")
+    private Instant dataValidade;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
@@ -76,7 +79,7 @@ public class Order implements Serializable {
     }
 
     public OrderStatus getOrderStatus() {
-        return OrderStatus.fromCode(orderStatus);
+        return orderStatus != null ? OrderStatus.fromCode(orderStatus) : null;
     }
 
     public void setOrderStatus(OrderStatus orderStatus) {
@@ -104,6 +107,14 @@ public class Order implements Serializable {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Instant getDataValidade() {
+        return dataValidade;
+    }
+
+    public void setDataValidade(Instant dataValidade) {
+        this.dataValidade = dataValidade;
     }
 
     public Instant getUpdatedAt() {

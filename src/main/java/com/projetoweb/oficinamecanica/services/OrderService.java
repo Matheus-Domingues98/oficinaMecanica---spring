@@ -8,10 +8,12 @@ import com.projetoweb.oficinamecanica.entities.*;
 import com.projetoweb.oficinamecanica.entities.pk.OrderProdutoPK;
 import com.projetoweb.oficinamecanica.entities.pk.OrderServicoPK;
 import com.projetoweb.oficinamecanica.exceptions.ResourceNotFoundException;
+import com.projetoweb.oficinamecanica.entities.enums.OrderStatus;
 import com.projetoweb.oficinamecanica.repositories.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,8 @@ public class OrderService {
     private final ServicoRepository servicoRepository;
     private final OrderProdutoRepository orderProdutoRepository;
     private final OrderServicoRepository orderServicoRepository;
+    private final PagamentoRepository pagamentoRepository;
+    private final EmailService emailService;
 
     public OrderService(OrderRepository orderRepository,
                         ClienteRepository clienteRepository,
@@ -33,7 +37,9 @@ public class OrderService {
                         ProdutoRepository produtoRepository,
                         ServicoRepository servicoRepository,
                         OrderProdutoRepository orderProdutoRepository,
-                        OrderServicoRepository orderServicoRepository) {
+                        OrderServicoRepository orderServicoRepository,
+                        PagamentoRepository pagamentoRepository,
+                        EmailService emailService) {
         this.orderRepository = orderRepository;
         this.clienteRepository = clienteRepository;
         this.carroRepository = carroRepository;
@@ -41,6 +47,8 @@ public class OrderService {
         this.servicoRepository = servicoRepository;
         this.orderProdutoRepository = orderProdutoRepository;
         this.orderServicoRepository = orderServicoRepository;
+        this.pagamentoRepository = pagamentoRepository;
+        this.emailService = emailService;
     }
 
     public OrderResponseDto findById(Long id) {
@@ -62,6 +70,7 @@ public class OrderService {
         Order order = new Order();
         order.setCliente(cliente);
         order.setOrderStatus(dto.getStatus());
+        order.setDataValidade(dto.getDataValidade());
 
         if (dto.getCarroId() != null) {
             Carro carro = carroRepository.findById(dto.getCarroId())
@@ -70,6 +79,7 @@ public class OrderService {
             order.setCarro(carro);
         }
 
+        validarDataValidadeParaOrcamento(dto.getStatus(), dto.getDataValidade());
         order = orderRepository.save(order);
         return new OrderResponseDto(order);
     }
@@ -78,9 +88,30 @@ public class OrderService {
     public OrderResponseDto update(Long id, OrderRequestDto dto) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order não encontrada com id: " + id));
+
+        if (dto.getStatus() == OrderStatus.FINALIZADO || dto.getStatus() == OrderStatus.ENTREGUE) {
+            if (!pagamentoRepository.existsByOrderId(id)) {
+                throw new IllegalArgumentException(
+                        "A OS (id=" + id + ") só pode ser finalizada após o registro de pagamento."
+                );
+            }
+        }
+
+        validarDataValidadeParaOrcamento(dto.getStatus(), dto.getDataValidade());
         updateData(order, dto);
-        order = orderRepository.save(order);
-        return new OrderResponseDto(order);
+        orderRepository.save(order);
+
+        // Recarrega com itens para calcular total corretamente (email + resposta)
+        Order orderAtualizada = orderRepository.findWithItensById(id).orElseThrow();
+        emailService.enviarAtualizacaoStatus(
+                orderAtualizada.getId(),
+                orderAtualizada.getCliente().getNome(),
+                orderAtualizada.getCliente().getEmail(),
+                dto.getStatus(),
+                orderAtualizada.getTotal()
+        );
+
+        return new OrderResponseDto(orderAtualizada);
     }
 
     @Transactional
@@ -108,6 +139,16 @@ public class OrderService {
             throw new IllegalArgumentException("Produto (id=" + dto.produtoId() + ") já está na order (id=" + orderId + ").");
         }
 
+        int estoqueDisponivel = produto.getQuantidade() != null ? produto.getQuantidade() : 0;
+        if (estoqueDisponivel < dto.quantidade()) {
+            throw new IllegalArgumentException(
+                    "Estoque insuficiente para o produto (id=" + dto.produtoId() + "). " +
+                    "Disponível: " + estoqueDisponivel + ", solicitado: " + dto.quantidade()
+            );
+        }
+        produto.setQuantidade(estoqueDisponivel - dto.quantidade());
+        produtoRepository.save(produto);
+
         OrderProduto item = new OrderProduto(order, produto, produto.getNome(), produto.getPreco(), dto.quantidade());
         orderProdutoRepository.save(item);
 
@@ -123,11 +164,15 @@ public class OrderService {
         OrderProdutoPK pk = new OrderProdutoPK();
         pk.setOrderId(orderId);
         pk.setProdutoId(produtoId);
-        if (!orderProdutoRepository.existsById(pk)) {
-            throw new ResourceNotFoundException("Produto (id=" + produtoId + ") não encontrado na order (id=" + orderId + ").");
-        }
+        OrderProduto orderProduto = orderProdutoRepository.findById(pk)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto (id=" + produtoId + ") não encontrado na order (id=" + orderId + ")."));
 
-        orderProdutoRepository.deleteById(pk);
+        Produto produto = orderProduto.getProduto();
+        int estoqueAtual = produto.getQuantidade() != null ? produto.getQuantidade() : 0;
+        produto.setQuantidade(estoqueAtual + orderProduto.getQuantidade());
+        produtoRepository.save(produto);
+
+        orderProdutoRepository.delete(orderProduto);
         return new OrderResponseDto(orderRepository.findWithItensById(orderId).orElseThrow());
     }
 
@@ -173,9 +218,21 @@ public class OrderService {
 
     private void updateData(Order order, OrderRequestDto dto) {
         if (dto.getClienteId() != null && !order.getCliente().getId().equals(dto.getClienteId())) {
-            Cliente cliente = clienteRepository.findById(dto.getClienteId())
+            Cliente novoCliente = clienteRepository.findById(dto.getClienteId())
                     .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + dto.getClienteId()));
-            order.setCliente(cliente);
+
+            // Se a order já tem carro e nenhum novo carroId foi informado, verifica se o carro pertence ao novo cliente
+            if (order.getCarro() != null && dto.getCarroId() == null) {
+                Carro carroAtual = order.getCarro();
+                if (carroAtual.getCliente() == null || !carroAtual.getCliente().getId().equals(novoCliente.getId())) {
+                    throw new IllegalArgumentException(
+                            "O carro atual (id=" + carroAtual.getId() + ") não pertence ao novo cliente (id=" + novoCliente.getId() + "). " +
+                            "Informe um carroId válido para o novo cliente ou omita o carro."
+                    );
+                }
+            }
+
+            order.setCliente(novoCliente);
         }
 
         if (dto.getCarroId() != null) {
@@ -188,6 +245,14 @@ public class OrderService {
         }
 
         order.setOrderStatus(dto.getStatus());
+        order.setDataValidade(dto.getDataValidade());
+    }
+
+    private void validarDataValidadeParaOrcamento(OrderStatus status, Instant dataValidade) {
+        if (status == OrderStatus.AGUARDANDO_APROVACAO && dataValidade == null) {
+            throw new IllegalArgumentException(
+                    "dataValidade é obrigatória ao gerar um orçamento (status AGUARDANDO_APROVACAO).");
+        }
     }
 
     private void validarCarroPertenceAoCliente(Carro carro, Cliente cliente) {

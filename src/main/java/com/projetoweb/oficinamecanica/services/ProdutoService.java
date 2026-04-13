@@ -1,5 +1,6 @@
 package com.projetoweb.oficinamecanica.services;
 
+import com.projetoweb.oficinamecanica.dto.EntradaEstoqueRequestDto;
 import com.projetoweb.oficinamecanica.dto.ProdutoRequestDto;
 import com.projetoweb.oficinamecanica.dto.ProdutoResponseDto;
 import com.projetoweb.oficinamecanica.entities.Produto;
@@ -34,12 +35,21 @@ public class ProdutoService {
         return ProdutoResponseDto.from(entity);
     }
 
+    public List<ProdutoResponseDto> findEstoqueCritico() {
+        return produtoRepository.findEstoqueCritico()
+                .stream()
+                .map(ProdutoResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ProdutoResponseDto insert(ProdutoRequestDto dto) {
         Produto entity = new Produto();
         entity.setNome(dto.nome());
         entity.setPreco(dto.preco());
         entity.setQuantidade(dto.quantidade());
+        entity.setTipo(dto.tipo());
+        entity.setQuantidadeMinima(dto.quantidadeMinima());
         return ProdutoResponseDto.from(produtoRepository.save(entity));
     }
 
@@ -50,6 +60,17 @@ public class ProdutoService {
         entity.setNome(dto.nome());
         entity.setPreco(dto.preco());
         entity.setQuantidade(dto.quantidade());
+        entity.setTipo(dto.tipo());
+        entity.setQuantidadeMinima(dto.quantidadeMinima());
+        return ProdutoResponseDto.from(produtoRepository.save(entity));
+    }
+
+    @Transactional
+    public ProdutoResponseDto registrarEntrada(Long id, EntradaEstoqueRequestDto dto) {
+        Produto entity = produtoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com id: " + id));
+        int novaQuantidade = (entity.getQuantidade() != null ? entity.getQuantidade() : 0) + dto.quantidade();
+        entity.setQuantidade(novaQuantidade);
         return ProdutoResponseDto.from(produtoRepository.save(entity));
     }
 

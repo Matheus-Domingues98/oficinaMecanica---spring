@@ -24,20 +24,20 @@ public class ClienteService {
     public List<ClienteResponseDto> findAll() {
         return clienteRepository.findAll()
                 .stream()
-                .map(ClienteResponseDto::new)
+                .map(ClienteResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     public ClienteResponseDto findById(Long id) {
         Cliente entity = clienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + id));
-        return new ClienteResponseDto(entity);
+        return ClienteResponseDto.from(entity);
     }
 
     public ClienteResponseDto findByDoc(String doc) {
         Cliente entity = clienteRepository.findByDoc(doc)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com documento: " + doc));
-        return new ClienteResponseDto(entity);
+        return ClienteResponseDto.from(entity);
     }
 
     @Transactional
@@ -47,7 +47,7 @@ public class ClienteService {
         entity.setTelefone(dto.telefone());
         entity.setEmail(dto.email());
         entity.setDoc(dto.doc());
-        return new ClienteResponseDto(clienteRepository.save(entity));
+        return ClienteResponseDto.from(clienteRepository.save(entity));
     }
 
     @Transactional
@@ -58,7 +58,7 @@ public class ClienteService {
         entity.setTelefone(dto.telefone());
         entity.setEmail(dto.email());
         entity.setDoc(dto.doc());
-        return new ClienteResponseDto(clienteRepository.save(entity));
+        return ClienteResponseDto.from(clienteRepository.save(entity));
     }
 
     @Transactional

@@ -1,8 +1,10 @@
 package com.projetoweb.oficinamecanica.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.projetoweb.oficinamecanica.entities.enums.TipoProduto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -32,6 +34,13 @@ public class Produto implements Serializable {
     @PositiveOrZero(message = "Quantidade não pode ser negativa")
     private Integer quantidade;
 
+    @NotNull(message = "Tipo é obrigatório")
+    @Enumerated(EnumType.STRING)
+    private TipoProduto tipo;
+
+    @PositiveOrZero(message = "Quantidade mínima não pode ser negativa")
+    private Integer quantidadeMinima;
+
     @OneToMany(mappedBy = "produto")
     @JsonIgnore
     private List<OrderProduto> orderProdutos = new ArrayList<>();
@@ -39,11 +48,13 @@ public class Produto implements Serializable {
     public Produto() {
     }
 
-    public Produto(Long id, String nome, BigDecimal preco, Integer quantidade) {
+    public Produto(Long id, String nome, BigDecimal preco, Integer quantidade, TipoProduto tipo, Integer quantidadeMinima) {
         this.id = id;
         this.nome = nome;
         this.preco = preco;
         this.quantidade = quantidade;
+        this.tipo = tipo;
+        this.quantidadeMinima = quantidadeMinima;
     }
 
     public Long getId() {
@@ -72,6 +83,22 @@ public class Produto implements Serializable {
 
     public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
+    }
+
+    public TipoProduto getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoProduto tipo) {
+        this.tipo = tipo;
+    }
+
+    public Integer getQuantidadeMinima() {
+        return quantidadeMinima;
+    }
+
+    public void setQuantidadeMinima(Integer quantidadeMinima) {
+        this.quantidadeMinima = quantidadeMinima;
     }
 
     public List<OrderProduto> getOrderProdutos() {

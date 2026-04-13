@@ -35,7 +35,7 @@ public class CarroController {
     public ResponseEntity<CarroResponseDto> insert(@Valid @RequestBody CarroRequestDto dto) {
         CarroResponseDto response = carroService.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.getId()).toUri();
+                .buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
 

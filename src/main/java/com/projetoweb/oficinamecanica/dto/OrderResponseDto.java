@@ -3,7 +3,6 @@ package com.projetoweb.oficinamecanica.dto;
 import com.projetoweb.oficinamecanica.entities.Order;
 import com.projetoweb.oficinamecanica.entities.OrderItem;
 import com.projetoweb.oficinamecanica.entities.enums.OrderStatus;
-import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -12,16 +11,13 @@ import java.util.List;
 public class OrderResponseDto {
 
     private Long id;
-    
-    @NotNull(message = "Status é obrigatório")
     private OrderStatus status;
-    
-    @NotNull(message = "Cliente é obrigatório")
     private ClienteResponseDto cliente;
     
     private CarroResponseDto carro;
     private BigDecimal total;
     private List<OrderItem> itens;
+    private Instant dataValidade;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -31,10 +27,11 @@ public class OrderResponseDto {
     public OrderResponseDto(Order entity) {
         this.id = entity.getId();
         this.status = entity.getOrderStatus();
-        this.cliente = new ClienteResponseDto(entity.getCliente());
-        this.carro = entity.getCarro() != null ? new CarroResponseDto(entity.getCarro()) : null;
+        this.cliente = ClienteResponseDto.from(entity.getCliente());
+        this.carro = entity.getCarro() != null ? CarroResponseDto.from(entity.getCarro()) : null;
         this.total = entity.getTotal();
         this.itens = entity.getItens();
+        this.dataValidade = entity.getDataValidade();
         this.createdAt = entity.getCreatedAt();
         this.updatedAt = entity.getUpdatedAt();
     }
@@ -73,6 +70,14 @@ public class OrderResponseDto {
 
     public List<OrderItem> getItens() {
         return itens;
+    }
+
+    public Instant getDataValidade() {
+        return dataValidade;
+    }
+
+    public void setDataValidade(Instant dataValidade) {
+        this.dataValidade = dataValidade;
     }
 
     public Instant getCreatedAt() {

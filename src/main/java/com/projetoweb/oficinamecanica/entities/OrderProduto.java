@@ -101,6 +101,11 @@ public class OrderProduto implements Serializable, OrderItem {
     }
 
     @Override
+    public String getTipo() {
+        return "PRODUTO";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         OrderProduto that = (OrderProduto) o;

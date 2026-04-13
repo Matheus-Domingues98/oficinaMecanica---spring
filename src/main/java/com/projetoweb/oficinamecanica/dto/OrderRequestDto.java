@@ -3,6 +3,8 @@ package com.projetoweb.oficinamecanica.dto;
 import com.projetoweb.oficinamecanica.entities.enums.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.Instant;
+
 /**
  * DTO de entrada para criação e atualização de Order.
  * Contém apenas os campos que o cliente pode enviar — IDs de referência e status.
@@ -17,6 +19,8 @@ public class OrderRequestDto {
     private Long clienteId;
 
     private Long carroId;
+
+    private Instant dataValidade;
 
     public OrderRequestDto() {
     }
@@ -43,5 +47,13 @@ public class OrderRequestDto {
 
     public void setCarroId(Long carroId) {
         this.carroId = carroId;
+    }
+
+    public Instant getDataValidade() {
+        return dataValidade;
+    }
+
+    public void setDataValidade(Instant dataValidade) {
+        this.dataValidade = dataValidade;
     }
 }

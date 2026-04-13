@@ -1,5 +1,6 @@
 package com.projetoweb.oficinamecanica.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projetoweb.oficinamecanica.entities.pk.OrderServicoPK;
 import jakarta.persistence.*;
@@ -24,6 +25,8 @@ public class OrderServico implements Serializable, OrderItem {
     private BigDecimal preco;
 
     private String descricao;
+
+    @JsonFormat(pattern = "HH:mm")
     private Duration duracao;
 
     @ManyToOne
@@ -106,6 +109,11 @@ public class OrderServico implements Serializable, OrderItem {
 
     public void setDuracao(Duration duracao) {
         this.duracao = duracao;
+    }
+
+    @Override
+    public String getTipo() {
+        return "SERVICO";
     }
 
     @Override

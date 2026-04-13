@@ -7,7 +7,8 @@ public enum OrderStatus {
     AGUARDANDO_APROVACAO(3),
     EM_EXECUCAO(4),
     FINALIZADO(5),
-    ENTREGUE(6);
+    ENTREGUE(6),
+    EM_ATRASO(7);
 
     private int code;
 

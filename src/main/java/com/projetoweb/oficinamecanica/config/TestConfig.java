@@ -2,8 +2,8 @@ package com.projetoweb.oficinamecanica.config;
 
 import com.projetoweb.oficinamecanica.entities.*;
 import com.projetoweb.oficinamecanica.entities.enums.OrderStatus;
+import com.projetoweb.oficinamecanica.entities.enums.TipoProduto;
 import com.projetoweb.oficinamecanica.repositories.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,33 +12,33 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
 
-import static com.projetoweb.oficinamecanica.entities.enums.OrderStatus.AGUARDANDO_APROVACAO;
-import static com.projetoweb.oficinamecanica.entities.enums.OrderStatus.FINALIZADO;
-
 @Configuration
 @Profile("test")
 public class TestConfig implements CommandLineRunner {
 
-    @Autowired
-    private ClienteRepository clienteRepository;
+    private final ClienteRepository clienteRepository;
+    private final CarroRepository carroRepository;
+    private final OrderRepository orderRepository;
+    private final ProdutoRepository produtoRepository;
+    private final ServicoRepository servicoRepository;
+    private final OrderServicoRepository orderServicoRepository;
+    private final OrderProdutoRepository orderProdutoRepository;
 
-    @Autowired
-    private CarroRepository carroRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private ProdutoRepository produtoRepository;
-
-    @Autowired
-    private ServicoRepository servicoRepository;
-
-    @Autowired
-    private OrderServicoRepository orderServicoRepository;
-
-    @Autowired
-    private OrderProdutoRepository orderProdutoRepository;
+    public TestConfig(ClienteRepository clienteRepository,
+                      CarroRepository carroRepository,
+                      OrderRepository orderRepository,
+                      ProdutoRepository produtoRepository,
+                      ServicoRepository servicoRepository,
+                      OrderServicoRepository orderServicoRepository,
+                      OrderProdutoRepository orderProdutoRepository) {
+        this.clienteRepository = clienteRepository;
+        this.carroRepository = carroRepository;
+        this.orderRepository = orderRepository;
+        this.produtoRepository = produtoRepository;
+        this.servicoRepository = servicoRepository;
+        this.orderServicoRepository = orderServicoRepository;
+        this.orderProdutoRepository = orderProdutoRepository;
+    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -49,8 +49,8 @@ public class TestConfig implements CommandLineRunner {
 
         clienteRepository.saveAll(Arrays.asList(c1, c2));
 
-        Carro carro1 = new Carro(null, "Fiat Uno", "ABC-1234", "Azul", 2022,"Fiat", c1);
-        Carro carro2 = new Carro(null, "Chevrolet Onix", "DEF-5678", "Vermelho", 2021,"Chevrolet", c2);
+        Carro carro1 = new Carro(null, "Fiat Uno", "ABC-1234", "Azul", 2022, "Fiat", c1);
+        Carro carro2 = new Carro(null, "Chevrolet Onix", "DEF-5678", "Vermelho", 2021, "Chevrolet", c2);
 
         carroRepository.saveAll(Arrays.asList(carro1, carro2));
 
@@ -69,8 +69,8 @@ public class TestConfig implements CommandLineRunner {
 
         orderServicoRepository.saveAll(Arrays.asList(os1, os2));
 
-        Produto p1 = new Produto(null, "Pneu", new BigDecimal("50.00"), 4);
-        Produto p2 = new Produto(null, "Oleo", new BigDecimal("100.00"), 1);
+        Produto p1 = new Produto(null, "Pneu", new BigDecimal("50.00"), 4, TipoProduto.PECA, 2);
+        Produto p2 = new Produto(null, "Oleo", new BigDecimal("100.00"), 1, TipoProduto.PRODUTO, 0);
 
         produtoRepository.saveAll(Arrays.asList(p1, p2));
 
@@ -78,14 +78,5 @@ public class TestConfig implements CommandLineRunner {
         OrderProduto op2 = new OrderProduto(o2, p2, p2.getNome(), p2.getPreco(), p2.getQuantidade());
 
         orderProdutoRepository.saveAll(Arrays.asList(op1, op2));
-
-
-
-
-
-
-
-
-
     }
 }

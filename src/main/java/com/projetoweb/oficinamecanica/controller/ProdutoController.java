@@ -1,5 +1,6 @@
 package com.projetoweb.oficinamecanica.controller;
 
+import com.projetoweb.oficinamecanica.dto.EntradaEstoqueRequestDto;
 import com.projetoweb.oficinamecanica.dto.ProdutoRequestDto;
 import com.projetoweb.oficinamecanica.dto.ProdutoResponseDto;
 import com.projetoweb.oficinamecanica.services.ProdutoService;
@@ -26,6 +27,11 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.findAll());
     }
 
+    @GetMapping("/estoque-critico")
+    public ResponseEntity<List<ProdutoResponseDto>> findEstoqueCritico() {
+        return ResponseEntity.ok(produtoService.findEstoqueCritico());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponseDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.findById(id));
@@ -37,6 +43,12 @@ public class ProdutoController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
+    }
+
+    @PostMapping("/{id}/entrada")
+    public ResponseEntity<ProdutoResponseDto> registrarEntrada(@PathVariable Long id,
+                                                               @Valid @RequestBody EntradaEstoqueRequestDto dto) {
+        return ResponseEntity.ok(produtoService.registrarEntrada(id, dto));
     }
 
     @PutMapping("/{id}")

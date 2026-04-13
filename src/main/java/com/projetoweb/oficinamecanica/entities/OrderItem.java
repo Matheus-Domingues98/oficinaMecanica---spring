@@ -10,4 +10,5 @@ import java.math.BigDecimal;
 public interface OrderItem {
     String getNome();
     BigDecimal getPreco();
+    String getTipo();
 }

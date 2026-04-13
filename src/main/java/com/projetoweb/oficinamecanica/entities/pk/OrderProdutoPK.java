@@ -8,6 +8,8 @@ import java.util.Objects;
 @Embeddable
 public class OrderProdutoPK implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private Long orderId;
     private Long produtoId;
 

@@ -28,21 +28,18 @@ public class CarroService {
     public List<CarroResponseDto> findAll() {
         return carroRepository.findAll()
                 .stream()
-                .map(CarroResponseDto::new)
+                .map(CarroResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     public CarroResponseDto findById(Long id) {
         Carro entity = carroRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Carro não encontrado com id: " + id));
-        return new CarroResponseDto(entity);
+        return CarroResponseDto.from(entity);
     }
 
     @Transactional
     public CarroResponseDto insert(CarroRequestDto dto) {
-        if (dto.clienteId() == null) {
-            throw new IllegalArgumentException("ID do cliente é obrigatório para cadastrar um carro");
-        }
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + dto.clienteId()));
 
@@ -54,7 +51,7 @@ public class CarroService {
         entity.setMarca(dto.marca());
         entity.setCliente(cliente);
 
-        return new CarroResponseDto(carroRepository.save(entity));
+        return CarroResponseDto.from(carroRepository.save(entity));
     }
 
     @Transactional
@@ -66,7 +63,14 @@ public class CarroService {
         entity.setCor(dto.cor());
         entity.setAnoFabricacao(dto.anoFabricacao());
         entity.setMarca(dto.marca());
-        return new CarroResponseDto(carroRepository.save(entity));
+
+        if (!entity.getCliente().getId().equals(dto.clienteId())) {
+            Cliente novoCliente = clienteRepository.findById(dto.clienteId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado com id: " + dto.clienteId()));
+            entity.setCliente(novoCliente);
+        }
+
+        return CarroResponseDto.from(carroRepository.save(entity));
     }
 
     @Transactional
